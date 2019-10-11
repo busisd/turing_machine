@@ -82,22 +82,86 @@ class TuringMachine:
 		if self.end_state not in self.states:
 			self.states.append(self.end_state)
 		
-
-		
-	def verify():
+	
+	
+	def add_rule(self, state, char, new_state, new_char, direction):
 		'''
-			Verifies that the machine is well-formed, returning True if it does
-			and False if not.
+			Adds a rule from (state, char) to (new_state, new_char, direction).
+			If a rule from (state, char) already exists, it is replaced.
+			
+			Note: does not verify that inputted characters and states exist in
+			the Turing Machine. This can be checked with verify()
+		'''
+		self.states[(state, char)] = (new_state, new_char, direction)
+		
+		
+		
+	def _rule_to_str(self, rule_key):
+		'''
+			Given the key for a rule, formats it as a string.
+			
+			Used for error generation.
+		'''
+		return str(rule_key) + " : " +str(self.rules[rule_key])
+	
+	
+	
+	def verify(self):
+		'''
+			Verifies that the machine is well-formed, returning a list of errors
+			(empty if none found). 
 			
 			Includes checks for:
+			 - All rules are well-formed
+			 - All rules are on states, symbols, and directions that exist
 			 - All rules on the tape_end_char must move right and write tape_end_char
-			 - All rules are on states and symbols that exist
 			 - default_rule follows above two conditions
 			 - blank_char and tape_end_char are not in input_alpha
 			 - start, accept, and reject states are in states
 		'''
 		
-		pass
+		errors = []
+		
+		for rule_key in self.rules.keys():
+			if len(rule_key) != 2:
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key length != 2"
+				errors.append(new_error)
+				continue
+			if len(self.rules[rule_key]) != 3:
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value length != 3"
+				errors.append(new_error)
+				continue
+			
+			if rule_key[0] not in self.states:
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key state that doesn't exist"
+				errors.append(new_error)
+			if rule_key[1] not in self.tape_alpha:
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key char that doesn't exist"
+				errors.append(new_error)
+			if self.rules[rule_key][0] not in self.rules:
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value state that doesn't exist"
+				errors.append(new_error)
+			if self.rules[rule_key][1] not in self.tape_alpha:
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value char that doesn't exist"
+				errors.append(new_error)
+			if self.rules[rule_key][2] not in ("L", "R"):
+				new_error = "Error: rule "+_rule_to_str(rule_key)+" has direction that isn't 'L' or 'R'"
+				errors.append(new_error)
+				
+		if len(self.default_rule) != 3:
+			new_error = "Error: default rule has length != 3"
+			errors.append(new_error)
+		if default_rule[0] not in self.rules:
+			new_error = "Error: default rule has value state that doesn't exist"
+			errors.append(new_error)
+		if default_rule[1] not in self.tape_alpha:
+			new_error = "Error: default rule has value char that doesn't exist"
+			errors.append(new_error)
+		if default_rule[2] not in ("L", "R"):
+			new_error = "Error: default rule has direction that isn't 'L' or 'R'"
+			errors.append(new_error)
+		
+		return errors
 		
 		
 		
