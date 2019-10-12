@@ -1,13 +1,15 @@
 '''
 	Author: Daniel Busis
 	
-	A program that defines and simulates Turing Machines
+	A program that defines and simulates Turing Machines.
+	Designed to follow Model-View-Controller model; this
+	is the model.
 '''
 
 class TuringMachine:
 	def __init__(self, states, input_alpha, tape_alpha, rules, start_state, 
 					accept_state = "state_accept", reject_state = "state_reject", 
-					start_char = '#', blank_char = '_', default_rule = None):
+					tape_end_char = '#', blank_char = '_', default_rule = None):
 		'''
 			Defines a Turing machine
 			
@@ -38,7 +40,7 @@ class TuringMachine:
 			 - reject_state is one of the states in state, and represents the machine rejecting. 
 			   If not specified, defaults to "state_reject." Added to states automatically if
 			   not done by the user.
-			 - start_char is one of the strings in tape_alpha. Defaults to '#'. If not in
+			 - tape_end_char is one of the strings in tape_alpha. Defaults to '#'. If not in
 			   tape_alpha, it is added to tape_alpha.
 			 - blank_char is one of the strings in tape_alpha. Defaults to '_'. If not in
 			   tape_alpha, it is added to tape_alpha.
@@ -46,10 +48,7 @@ class TuringMachine:
 			   a state/character combination it doesn't have a rule for. Provided in the form
 			   (new_state, new_char, direction). If not provided, defaults to:
 			   (reject_state, blank_char, "R").
-			   
-			Other components:
-			 - tape is a list of characters, that starts with only tape_end_char.
-		'''
+			'''
 		
 		self.states = states
 		self.input_alpha = input_alpha
@@ -70,7 +69,6 @@ class TuringMachine:
 			self.default_rule = (reject_state, blank_char, "R")
 		
 		self.blank_char = blank_char
-		self.tape = [blank_char]
 		
 		if self.tape_end_char not in self.tape_alpha:
 			self.tape_alpha.append(self.tape_end_char)
@@ -81,6 +79,11 @@ class TuringMachine:
 			self.states.append(self.start_state)
 		if self.end_state not in self.states:
 			self.states.append(self.end_state)
+			
+		self.cur_state = None
+		self.cur_head_pos = None
+		self.tape = None
+
 		
 	
 	
@@ -138,7 +141,7 @@ class TuringMachine:
 			if rule_key[1] not in self.tape_alpha:
 				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key char that doesn't exist"
 				errors.append(new_error)
-			if self.rules[rule_key][0] not in self.rules:
+			if self.rules[rule_key][0] not in self.states:
 				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value state that doesn't exist"
 				errors.append(new_error)
 			if self.rules[rule_key][1] not in self.tape_alpha:
@@ -148,10 +151,16 @@ class TuringMachine:
 				new_error = "Error: rule "+_rule_to_str(rule_key)+" has direction that isn't 'L' or 'R'"
 				errors.append(new_error)
 				
+			if rule_key[1] == self.tape_end_char:
+				if self.rules[rule_key][1] != self.tape_end_char:
+					new_error = "Error: rule "+_rule_to_str(rule_key)+" doesn't re-write tape end!"
+				if self.rules[rule_key][2] != "R":
+					new_error = "Error: rule "+_rule_to_str(rule_key)+" doesn't move right on tape end!"
+				
 		if len(self.default_rule) != 3:
 			new_error = "Error: default rule has length != 3"
 			errors.append(new_error)
-		if default_rule[0] not in self.rules:
+		if default_rule[0] not in self.states:
 			new_error = "Error: default rule has value state that doesn't exist"
 			errors.append(new_error)
 		if default_rule[1] not in self.tape_alpha:
@@ -160,12 +169,75 @@ class TuringMachine:
 		if default_rule[2] not in ("L", "R"):
 			new_error = "Error: default rule has direction that isn't 'L' or 'R'"
 			errors.append(new_error)
-		
+		#TODO: FIGURE OUT HOW TO DEAL WITH TAPE END VS DEFAULT RULES. MAYBE AUTOMATICALLY ADD TAPE END RULES FOR ALL 
+		#CAHRACTERS THAT DONT HAVE THEM
 		return errors
+	
+	
+	
+	def start_sim(self, input):
+		'''
+			Initializes a simulation by creating and initializing the tape,
+			setting the state to the start state, and setting the head position
+			to the tape start
+			
+			Takes:
+			 - input: a list of strings from tape_alpha
+		'''
 		
+		errors = self.verify()
+		if errors: # if there are errors, return them and don't start
+			return errors
 		
+		self.cur_state = start_state
+		self.cur_head_pos = 0
+		self.tape = [tape_end_char]
 		
+		for input_char in input:
+			if input_char not in self.input_alpha:
+				return ["Error! Character " + input_char + " is not a valid part of the input alphabet!"]
+			self.tape.append(input_char)
 		
+	def step_sim(self):
+		'''
+			Steps the turing machine a single time, using its current state,
+			head position, and tape.
+			
+			Should only be called after the simulation has been started 
+			using start_sim.
+		'''
+		
+		if self.cur_state is None:
+			return ["Error! Simulation not initialized! Call start_sim() first!"]
+		
+		cur_tuple = (self.cur_state, self.tape[cur_head_pos])
+		
+		action = self.rules.get(cur_tuple, self.default_rule)
+				
+		self.cur_state = action[0]
+		self.tape[cur_head_pos] = action[1]
+		if action[2] == "L":
+			self.cur_head_pos -= 1
+		else:
+			self.cur_head_pos += 1
+
+		if self.cur_head_pos >= len(self.tape):
+			self.tape.append[self.blank_char]
+	
+	
+	
+	def has_ended(self):
+		'''
+			Returns whether the Turing Machine has reached the accept/reject states.
+			
+			Returns "accept", "reject", or False as appropriate.
+		'''
+		if self.cur_state == self.accept_state:
+			return "accept"
+		elif self.cur_state == self.reject_state:
+			return "reject"
+		else:
+			return False
 		
 		
 		
