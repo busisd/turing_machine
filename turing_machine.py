@@ -292,20 +292,19 @@ def main():
 					blank_char = '_', 
 					default_rule = None)
 					
-	print(TM.verify())
-	TM.start_sim("000111222")
+	print(TM.start_sim("000111222"))
 	while not TM.has_ended():
 		print(TM.tape, TM.cur_state, TM.cur_head_pos)
 		TM.step_sim()
 	print(TM.has_ended())
 	
-	TM.start_sim("120")
+	print(TM.start_sim("120"))
 	while not TM.has_ended():
 		print(TM.tape, TM.cur_state, TM.cur_head_pos)
 		TM.step_sim()
 	print(TM.has_ended())
 	
-	TM.start_sim("0011222")
+	print(TM.start_sim("0011222"))
 	while not TM.has_ended():
 		print(TM.tape, TM.cur_state, TM.cur_head_pos)
 		TM.step_sim()
