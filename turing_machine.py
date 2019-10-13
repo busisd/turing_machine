@@ -77,8 +77,10 @@ class TuringMachine:
 			
 		if self.start_state not in self.states:
 			self.states.append(self.start_state)
-		if self.end_state not in self.states:
-			self.states.append(self.end_state)
+		if self.accept_state not in self.states:
+			self.states.append(self.accept_state)
+		if self.reject_state not in self.states:
+			self.states.append(self.reject_state)
 			
 		self.cur_state = None
 		self.cur_head_pos = None
@@ -115,6 +117,7 @@ class TuringMachine:
 			(empty if none found). 
 			
 			Includes checks for:
+			 - All input characters are in the tape characters
 			 - All rules are well-formed
 			 - All rules are on states, symbols, and directions that exist
 			 - All rules on the tape_end_char must move right and write tape_end_char
@@ -125,48 +128,60 @@ class TuringMachine:
 		
 		errors = []
 		
+		for char in self.input_alpha:
+			if char not in self.tape_alpha:
+				new_error = "Error: character "+char+" in input but not tape alphabet"
+				errors.append()
+
+		if self.tape_end_char not in self.tape_alpha:
+			new_error = "Error: tape end character "+self.tape_end_char+" in input but not tape alphabet"
+			errors.append()
+		if self.blank_char not in self.tape_alpha:
+			new_error = "Error: character "+self.blank_char+" in input but not tape alphabet"
+			errors.append()	
+		
 		for rule_key in self.rules.keys():
 			if len(rule_key) != 2:
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key length != 2"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has key length != 2"
 				errors.append(new_error)
 				continue
 			if len(self.rules[rule_key]) != 3:
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value length != 3"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has value length != 3"
 				errors.append(new_error)
 				continue
 			
 			if rule_key[0] not in self.states:
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key state that doesn't exist"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has key state that doesn't exist"
 				errors.append(new_error)
 			if rule_key[1] not in self.tape_alpha:
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has key char that doesn't exist"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has key char that doesn't exist"
 				errors.append(new_error)
 			if self.rules[rule_key][0] not in self.states:
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value state that doesn't exist"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has value state that doesn't exist"
 				errors.append(new_error)
 			if self.rules[rule_key][1] not in self.tape_alpha:
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has value char that doesn't exist"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has value char that doesn't exist"
 				errors.append(new_error)
 			if self.rules[rule_key][2] not in ("L", "R"):
-				new_error = "Error: rule "+_rule_to_str(rule_key)+" has direction that isn't 'L' or 'R'"
+				new_error = "Error: rule "+self._rule_to_str(rule_key)+" has direction that isn't 'L' or 'R'"
 				errors.append(new_error)
 				
 			if rule_key[1] == self.tape_end_char:
 				if self.rules[rule_key][1] != self.tape_end_char:
-					new_error = "Error: rule "+_rule_to_str(rule_key)+" doesn't re-write tape end!"
+					new_error = "Error: rule "+self._rule_to_str(rule_key)+" doesn't re-write tape end!"
 				if self.rules[rule_key][2] != "R":
-					new_error = "Error: rule "+_rule_to_str(rule_key)+" doesn't move right on tape end!"
+					new_error = "Error: rule "+self._rule_to_str(rule_key)+" doesn't move right on tape end!"
 				
 		if len(self.default_rule) != 3:
 			new_error = "Error: default rule has length != 3"
 			errors.append(new_error)
-		if default_rule[0] not in self.states:
+		if self.default_rule[0] not in self.states:
 			new_error = "Error: default rule has value state that doesn't exist"
 			errors.append(new_error)
-		if default_rule[1] not in self.tape_alpha:
+		if self.default_rule[1] not in self.tape_alpha:
 			new_error = "Error: default rule has value char that doesn't exist"
 			errors.append(new_error)
-		if default_rule[2] not in ("L", "R"):
+		if self.default_rule[2] not in ("L", "R"):
 			new_error = "Error: default rule has direction that isn't 'L' or 'R'"
 			errors.append(new_error)
 		#TODO: FIGURE OUT HOW TO DEAL WITH TAPE END VS DEFAULT RULES. MAYBE AUTOMATICALLY ADD TAPE END RULES FOR ALL 
@@ -189,9 +204,9 @@ class TuringMachine:
 		if errors: # if there are errors, return them and don't start
 			return errors
 		
-		self.cur_state = start_state
+		self.cur_state = self.start_state
 		self.cur_head_pos = 0
-		self.tape = [tape_end_char]
+		self.tape = [self.tape_end_char]
 		
 		for input_char in input:
 			if input_char not in self.input_alpha:
@@ -210,19 +225,19 @@ class TuringMachine:
 		if self.cur_state is None:
 			return ["Error! Simulation not initialized! Call start_sim() first!"]
 		
-		cur_tuple = (self.cur_state, self.tape[cur_head_pos])
+		cur_tuple = (self.cur_state, self.tape[self.cur_head_pos])
 		
 		action = self.rules.get(cur_tuple, self.default_rule)
-				
+		
 		self.cur_state = action[0]
-		self.tape[cur_head_pos] = action[1]
+		self.tape[self.cur_head_pos] = action[1]
 		if action[2] == "L":
 			self.cur_head_pos -= 1
 		else:
 			self.cur_head_pos += 1
 
 		if self.cur_head_pos >= len(self.tape):
-			self.tape.append[self.blank_char]
+			self.tape.append(self.blank_char)
 	
 	
 	
@@ -239,5 +254,64 @@ class TuringMachine:
 		else:
 			return False
 		
+		#TODO: Make state_accept always go to itself
 		
-		
+def main():
+	'''
+		Runs a test on a TM that accepts strings in the form:
+		{0^n1^n2^n}
+	'''
+	TM = TuringMachine(["look_for_0", "look_for_1", "look_for_2", "reset"], 
+					["0", "1", "2"], 
+					["0", "1", "2", "_", "#", "X"], 
+					{	("reset", "#"):("look_for_0", "#", "R"),
+						("look_for_0", "X"):("look_for_0", "X", "R"),
+						("look_for_0", "0"):("look_for_1", "X", "R"),
+						("look_for_0", "1"):("state_reject", "1", "R"),
+						("look_for_0", "2"):("state_reject", "2", "R"),
+						("look_for_0", "_"):("state_accept", "_", "R"),
+						("look_for_1", "0"):("look_for_1", "0", "R"),
+						("look_for_1", "X"):("look_for_1", "X", "R"),
+						("look_for_1", "1"):("look_for_2", "X", "R"),
+						("look_for_1", "2"):("state_reject", "2", "R"),
+						("look_for_1", "_"):("state_reject", "_", "R"),
+						("look_for_2", "1"):("look_for_2", "1", "R"),
+						("look_for_2", "X"):("look_for_2", "X", "R"),
+						("look_for_2", "2"):("reset", "X", "R"),
+						("look_for_2", "_"):("state_accept", "_", "R"),
+						("reset", "X"):("reset", "X", "L"),
+						("reset", "0"):("reset", "0", "L"),
+						("reset", "1"):("reset", "1", "L"),
+						("reset", "2"):("reset", "2", "L"),
+						("reset", "_"):("reset", "_", "L"),
+					}, 
+					"reset", 
+					# accept_state = "state_accept", 
+					# reject_state = "state_reject", 
+					tape_end_char = '#', 
+					blank_char = '_', 
+					default_rule = None)
+					
+	print(TM.verify())
+	TM.start_sim("000111222")
+	while not TM.has_ended():
+		print(TM.tape, TM.cur_state, TM.cur_head_pos)
+		TM.step_sim()
+	print(TM.has_ended())
+	
+	TM.start_sim("120")
+	while not TM.has_ended():
+		print(TM.tape, TM.cur_state, TM.cur_head_pos)
+		TM.step_sim()
+	print(TM.has_ended())
+	
+	TM.start_sim("0011222")
+	while not TM.has_ended():
+		print(TM.tape, TM.cur_state, TM.cur_head_pos)
+		TM.step_sim()
+	print(TM.has_ended())
+	
+if __name__ == "__main__":
+	main()
+
+
