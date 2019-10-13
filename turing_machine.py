@@ -31,6 +31,10 @@ class TuringMachine:
 				 - direction = "L" or "R"
 			   Note that rules can start empty and be added to with the add_rule() function.
 			   Additionally, if it is provided as None, initializes to empty dictionary.
+			   Additionally, if rules aren't provided, the following are automatically generated:
+			     - For the tape end character, a rule that rewrites it and moves right for all states
+				 - For the accept and reject states, a rule that rewrites any character and stays
+				   in that state, moving right.
 			 - start_state is one of the states in state, and where the machine starts. 
 			 
 			Optional paremeters:
@@ -82,6 +86,19 @@ class TuringMachine:
 		if self.reject_state not in self.states:
 			self.states.append(self.reject_state)
 			
+		for state in self.states:
+			if self.rules.get((state, self.tape_end_char), None) is None:
+				self.rules[(state, self.tape_end_char)] = (state, self.tape_end_char, "R")
+
+		for char in self.tape_alpha:
+			if self.rules.get((self.accept_state, char), None) is None:
+				self.rules[(self.accept_state, char)] = (self.accept_state, char, "R")
+
+		for char in self.tape_alpha:
+			if self.rules.get((self.reject_state, char), None) is None:
+				self.rules[(self.reject_state, char)] = (self.reject_state, char, "R")
+
+		
 		self.cur_state = None
 		self.cur_head_pos = None
 		self.tape = None
@@ -184,8 +201,7 @@ class TuringMachine:
 		if self.default_rule[2] not in ("L", "R"):
 			new_error = "Error: default rule has direction that isn't 'L' or 'R'"
 			errors.append(new_error)
-		#TODO: FIGURE OUT HOW TO DEAL WITH TAPE END VS DEFAULT RULES. MAYBE AUTOMATICALLY ADD TAPE END RULES FOR ALL 
-		#CAHRACTERS THAT DONT HAVE THEM
+					
 		return errors
 	
 	
@@ -297,6 +313,17 @@ def main():
 		print(TM.tape, TM.cur_state, TM.cur_head_pos)
 		TM.step_sim()
 	print(TM.has_ended())
+	
+	# TM.step_sim()
+	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+	# print(TM.has_ended())
+	# TM.step_sim()
+	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+	# print(TM.has_ended())
+	# TM.step_sim()
+	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+	# print(TM.has_ended())
+
 	
 	print(TM.start_sim("120"))
 	while not TM.has_ended():
