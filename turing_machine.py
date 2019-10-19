@@ -225,7 +225,7 @@ class TuringMachine:
 		
 		if starting_head_pos < 0:
 			return["Error: head start position must not be negative"]
-		if starting_head_pos < len(input):
+		if starting_head_pos > len(input):
 			return["Error: head start position must not exceed length of input"]
 		
 		self.cur_state = self.start_state
@@ -289,16 +289,18 @@ class TuringMachine:
 			formatted as follows:
 			
 			{
-				head_pos: (int head_pos)
-				cur_state: (string current_state)
-				tape: (list tape)
+				"head_pos": (int head_pos)
+				"cur_state": (string current_state)
+				"tape": (list tape)
 			}
 		'''
 		cur_state_dict = {
-			head_pos: self.head_pos,
-			cur_state: self.cur_state,
-			tape: self.tape
+			"cur_head_pos": self.cur_head_pos,
+			"cur_state": self.cur_state,
+			"tape": self.tape
 		}
+		
+		return cur_state_dict
 		
 		
 			
