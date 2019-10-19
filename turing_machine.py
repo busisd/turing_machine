@@ -206,7 +206,7 @@ class TuringMachine:
 	
 	
 	
-	def start_sim(self, input):
+	def start_sim(self, input, starting_head_pos = 0):
 		'''
 			Initializes a simulation by creating and initializing the tape,
 			setting the state to the start state, and setting the head position
@@ -214,20 +214,30 @@ class TuringMachine:
 			
 			Takes:
 			 - input: a list of strings from tape_alpha
+			Optionally:
+			 - starting_head_pos: Defaults to 0. Starting position of the head 
+			   on the tape. Must be >= 0 and <= length of the input.
 		'''
 		
 		errors = self.verify()
 		if errors: # if there are errors, return them and don't start
 			return errors
 		
+		if starting_head_pos < 0:
+			return["Error: head start position must not be negative"]
+		if starting_head_pos < len(input):
+			return["Error: head start position must not exceed length of input"]
+		
 		self.cur_state = self.start_state
-		self.cur_head_pos = 0
+		self.cur_head_pos = starting_head_pos
 		self.tape = [self.tape_end_char]
 		
 		for input_char in input:
 			if input_char not in self.input_alpha:
-				return ["Error! Character " + input_char + " is not a valid part of the input alphabet!"]
+				return ["Error: Character " + input_char + " is not a valid part of the input alphabet"]
 			self.tape.append(input_char)
+		
+		
 		
 	def step_sim(self):
 		'''
@@ -270,8 +280,28 @@ class TuringMachine:
 		else:
 			return False
 		
-		#TODO: Make state_accept always go to itself
 		
+	
+	def get_current_state(self):
+		'''
+			Returns a dictionary containing the current state,
+			head position, and tape of the Turing Machine, 
+			formatted as follows:
+			
+			{
+				head_pos: (int head_pos)
+				cur_state: (string current_state)
+				tape: (list tape)
+			}
+		'''
+		cur_state_dict = {
+			head_pos: self.head_pos,
+			cur_state: self.cur_state,
+			tape: self.tape
+		}
+		
+		
+			
 def main():
 	'''
 		Runs a test on a TM that accepts strings in the form:
