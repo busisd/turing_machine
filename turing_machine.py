@@ -6,6 +6,8 @@
 	is the model.
 '''
 
+import json
+
 class TuringMachine:
 	def __init__(self, states, input_alpha, tape_alpha, rules, start_state, 
 					accept_state = "state_accept", reject_state = "state_reject", 
@@ -297,7 +299,7 @@ class TuringMachine:
 		cur_state_dict = {
 			"cur_head_pos": self.cur_head_pos,
 			"cur_state": self.cur_state,
-			"tape": self.tape
+			"tape": self.tape.copy()
 		}
 		
 		return cur_state_dict
@@ -340,22 +342,28 @@ def main():
 					blank_char = '_', 
 					default_rule = None)
 					
+	all_states = []
 	print(TM.start_sim("000111222"))
 	while not TM.has_ended():
+		all_states.append(TM.get_current_state())
 		print(TM.tape, TM.cur_state, TM.cur_head_pos)
 		TM.step_sim()
 	print(TM.has_ended())
 	
-	# TM.step_sim()
-	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
-	# print(TM.has_ended())
-	# TM.step_sim()
-	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
-	# print(TM.has_ended())
-	# TM.step_sim()
-	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
-	# print(TM.has_ended())
+	with open("tm_out.json", 'w') as file:
+		file.write("tm_data = '")
+		file.write(json.dumps(all_states))
+		file.write("'")
 
+	# TM.step_sim()
+	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+	# print(TM.has_ended())
+	# TM.step_sim()
+	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+	# print(TM.has_ended())
+	# TM.step_sim()
+	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+	# print(TM.has_ended())
 	
 	print(TM.start_sim("120"))
 	while not TM.has_ended():

@@ -1,0 +1,57 @@
+<!Doctype html>
+<html>
+
+<head>
+	<title>Turing Machine Simulation</title>
+	<link type="text/css" rel="stylesheet" href="tm_css.css" />
+	<link rel="shortcut icon" href="#" />
+	
+	<script type="text/javascript" src="tm_out.json"></script>
+	<script type="text/javascript" defer>
+		var my_tm = JSON.parse(tm_data);
+		console.log(my_tm);
+		
+		define display_state(state_num){
+		
+		}
+	</script>
+</head>
+
+<body>
+	<p id="current_state">
+	</p>
+	<div id="tape_div">
+		<table id="tape_table">
+			<tr id="tape_row_top">
+				<td>a</td>
+				<td>b</td>
+				<td>c</td>
+				<td>d</td>
+				<td>a</td>
+				<td>b</td>
+				<td>c</td>
+				<td>d</td>
+				<td>a</td>
+				<td>b</td>
+				<td>c</td>
+				<td>d</td>
+				<td>a</td>
+				<td>b</td>
+				<td>c</td>
+				<td>d</td>
+				<td>a</td>
+				<td>b</td>
+				<td>c</td>
+				<td>d</td>
+			</tr>
+			<tr id="tape_row_bottom">
+				<td></td>
+				<td></td>
+				<td>^</td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+</body>
+
+</html>
