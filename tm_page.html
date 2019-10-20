@@ -44,6 +44,7 @@
 				
 				new_top_cell.innerText = tm_state["tape"][i];
 				if (i === tm_state["cur_head_pos"]){
+					new_top_cell.className="cur_selected_top_cell";
 					new_bottom_cell.innerText = "^";
 				}
 				

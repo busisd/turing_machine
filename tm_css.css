@@ -16,3 +16,8 @@ table, th, td {
 #tape_row_bottom td {
 	border: 0;
 }
+
+.cur_selected_top_cell {
+	font-weight: bold;
+	background-color: rgb(255, 255, 200);
+}
