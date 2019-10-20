@@ -7,14 +7,6 @@
 	<link rel="shortcut icon" href="#" />
 	
 	<script type="text/javascript" src="tm_out.json"></script>
-	<script type="text/javascript" defer>
-		var my_tm = JSON.parse(tm_data);
-		console.log(my_tm);
-		
-		define display_state(state_num){
-		
-		}
-	</script>
 </head>
 
 <body>
@@ -23,35 +15,53 @@
 	<div id="tape_div">
 		<table id="tape_table">
 			<tr id="tape_row_top">
-				<td>a</td>
-				<td>b</td>
-				<td>c</td>
-				<td>d</td>
-				<td>a</td>
-				<td>b</td>
-				<td>c</td>
-				<td>d</td>
-				<td>a</td>
-				<td>b</td>
-				<td>c</td>
-				<td>d</td>
-				<td>a</td>
-				<td>b</td>
-				<td>c</td>
-				<td>d</td>
-				<td>a</td>
-				<td>b</td>
-				<td>c</td>
-				<td>d</td>
 			</tr>
 			<tr id="tape_row_bottom">
-				<td></td>
-				<td></td>
-				<td>^</td>
-				<td></td>
 			</tr>
 		</table>
 	</div>
+	
+	<button onclick="advance_state()"> Next state! </button>
+	
+	<script type="text/javascript">
+		var my_tm = JSON.parse(tm_data);
+		console.log(my_tm);
+		
+		var state_num = 0;
+		var max_states = my_tm.length;
+		
+		var current_state = document.getElementById("current_state");
+		var tape_row_top = document.getElementById("tape_row_top");
+		var tape_row_bottom = document.getElementById("tape_row_bottom");
+		
+		function display_state(tm_state){
+			current_state.innerText = tm_state["cur_state"];
+			tape_row_top.innerHTML = "";
+			tape_row_bottom.innerHTML = "";
+			for (var i=0; i<tm_state["tape"].length; i++){
+				var new_top_cell = document.createElement("td");
+				var new_bottom_cell = document.createElement("td");
+				
+				new_top_cell.innerText = tm_state["tape"][i];
+				if (i === tm_state["cur_head_pos"]){
+					new_bottom_cell.innerText = "^";
+				}
+				
+				tape_row_top.appendChild(new_top_cell);
+				tape_row_bottom.appendChild(new_bottom_cell);
+			}
+		}
+		
+		function advance_state(){
+			if (state_num < max_states-1) {
+				state_num++;
+				display_state(my_tm[state_num]);
+			}
+		}
+		
+		display_state(my_tm[state_num]);
+	</script>
+
 </body>
 
 </html>

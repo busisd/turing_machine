@@ -348,8 +348,9 @@ def main():
 		all_states.append(TM.get_current_state())
 		print(TM.tape, TM.cur_state, TM.cur_head_pos)
 		TM.step_sim()
+	all_states.append(TM.get_current_state())
 	print(TM.has_ended())
-	
+
 	with open("tm_out.json", 'w') as file:
 		file.write("tm_data = '")
 		file.write(json.dumps(all_states))
