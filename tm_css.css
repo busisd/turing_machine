@@ -21,3 +21,7 @@ table, th, td {
 	font-weight: bold;
 	background-color: rgb(255, 255, 200);
 }
+
+#delay_field {
+	width: 4em;
+}
