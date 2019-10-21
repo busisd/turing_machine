@@ -9,6 +9,7 @@ var tape_row_top = document.getElementById("tape_row_top");
 var tape_row_bottom = document.getElementById("tape_row_bottom");
 var toggle_auto_button = document.getElementById("toggle_auto_button");
 var delay_field = document.getElementById("delay_field");
+var tm_data_text_area = document.getElementById("tm_data_text_area");
 
 var is_auto_on = false;
 var cur_auto_id = null;
@@ -69,6 +70,20 @@ function toggle_auto(){
 	} else {
 		stop_auto();
 	}
+}
+
+function submit_tm(){
+	var xhttp = new XMLHttpRequest();
+	
+	xhttp.onreadystatechange = function() {
+		if(this.readyState == 4 && this.status == 200) {
+			console.log(JSON.parse(this.responseText));
+		}
+	}
+	
+	xhttp.open("POST", "/generate_tm", true);
+	xhttp.setRequestHeader("Content-type", "application/json");
+	xhttp.send(JSON.stringify(["d", "e", "f"]));
 }
 
 display_state(my_tm[state_num]);

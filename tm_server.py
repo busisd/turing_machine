@@ -1,5 +1,7 @@
 import flask
+from flask import request
 from turing_machine import *
+import json
 
 app = flask.Flask(__name__)
 
@@ -7,11 +9,10 @@ app = flask.Flask(__name__)
 def tm_page():
 	return flask.render_template("tm_page.html")
 
+@app.route('/generate_tm', methods=["POST"])
 def set_machine():
-	pass
-
-def get_states():
-	pass
+	print("data received:", request.json)
+	return json.dumps(['a','b','c'])
 
 def main():
 	app.run(host="0.0.0.0", port=2013)
