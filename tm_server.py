@@ -12,7 +12,14 @@ def tm_page():
 @app.route('/generate_tm', methods=["POST"])
 def set_machine():
 	print("data received:", request.json)
-	return json.dumps(['a','b','c'])
+	TM = create_tm_from(request.json["tm_data"], start_state=request.json["start_state"])
+	if type(TM) == list:
+		print(TM)
+		return json.dumps(TM)
+	else:
+		TM.start_sim(request.json["input_string"])
+		print(TM.get_current_state())
+		return json.dumps(get_steps(TM, 100))
 
 def main():
 	app.run(host="0.0.0.0", port=2013)

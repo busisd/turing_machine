@@ -74,6 +74,13 @@ function toggle_auto(){
 
 function submit_tm(){
 	var xhttp = new XMLHttpRequest();
+	var tm_rule_text = tm_data_text_area.value;
+	var start_state = "state_start";
+	var input_string = "000111222";
+	var data_dict = {"tm_data": tm_rule_text,
+					"start_state": start_state,
+					"input_string": input_string
+					};
 	
 	xhttp.onreadystatechange = function() {
 		if(this.readyState == 4 && this.status == 200) {
@@ -83,7 +90,7 @@ function submit_tm(){
 	
 	xhttp.open("POST", "/generate_tm", true);
 	xhttp.setRequestHeader("Content-type", "application/json");
-	xhttp.send(JSON.stringify(["d", "e", "f"]));
+	xhttp.send(JSON.stringify(data_dict));
 }
 
 display_state(my_tm[state_num]);

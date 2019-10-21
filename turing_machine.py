@@ -471,9 +471,7 @@ def main():
 		file.write("tm_data = '")
 		file.write(json.dumps(all_states))
 		file.write("'")
-	
-	
-	
+
 	# TM.step_sim()
 	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
 	# print(TM.has_ended())
