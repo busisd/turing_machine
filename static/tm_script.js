@@ -10,6 +10,31 @@ var tape_row_bottom = document.getElementById("tape_row_bottom");
 var toggle_auto_button = document.getElementById("toggle_auto_button");
 var delay_field = document.getElementById("delay_field");
 var tm_data_text_area = document.getElementById("tm_data_text_area");
+var error_field = document.getElementById("error_field");
+var input_string_field = document.getElementById("input_string_field");
+
+tm_data_text_area.value = "\
+state_start # -> look_for_0 # R\n\
+look_for_0 X -> look_for_0 X R\n\
+look_for_0 0 -> look_for_1 X R\n\
+look_for_0 1 -> state_reject 1 R\n\
+look_for_0 2 -> state_reject 2 R\n\
+look_for_0 _ -> state_accept _ R\n\
+look_for_1 0 -> look_for_1 0 R\n\
+look_for_1 X -> look_for_1 X R\n\
+look_for_1 1 -> look_for_2 X R\n\
+look_for_1 2 -> state_reject 2 R\n\
+look_for_1 _ -> state_reject _ R\n\
+look_for_2 1 -> look_for_2 1 R\n\
+look_for_2 X -> look_for_2 X R\n\
+look_for_2 2 -> state_start X R\n\
+look_for_2 _ -> state_reject _ R\n\
+state_start X -> state_start X L\n\
+state_start 0 -> state_start 0 L\n\
+state_start 1 -> state_start 1 L\n\
+state_start 2 -> state_start 2 L\n\
+state_start _ -> state_start _ L\n\
+";
 
 var is_auto_on = false;
 var cur_auto_id = null;
@@ -76,7 +101,7 @@ function submit_tm(){
 	var xhttp = new XMLHttpRequest();
 	var tm_rule_text = tm_data_text_area.value;
 	var start_state = "state_start";
-	var input_string = "000111222";
+	var input_string = input_string_field.value;
 	var data_dict = {"tm_data": tm_rule_text,
 					"start_state": start_state,
 					"input_string": input_string
@@ -84,7 +109,16 @@ function submit_tm(){
 	
 	xhttp.onreadystatechange = function() {
 		if(this.readyState == 4 && this.status == 200) {
+			response_json = JSON.parse(this.responseText);
 			console.log(JSON.parse(this.responseText));
+			if (!response_json["error"]){
+				my_tm = response_json["data"];
+				max_states = my_tm.length;
+				error_field.innerText = "TM Registered!";
+				reset_state();
+			} else {
+				error_field.innerText = response_json["data"];
+			}
 		}
 	}
 	

@@ -306,7 +306,7 @@ class TuringMachine:
 
 
 
-def create_tm_from(input_string, start_state="state_start"):
+def create_tm_from(input_string, start_state="state_start", tape_end_char="#", blank_char="_"):
 	states = []
 	input_alpha = []
 	tape_alpha = []
@@ -342,11 +342,11 @@ def create_tm_from(input_string, start_state="state_start"):
 		
 		if state_source not in states:
 			states.append(state_source)
-		if char_read != "*" and char_read not in input_alpha:
+		if char_read != "*" and char_read not in input_alpha and char_read not in [tape_end_char, blank_char]:
 			input_alpha.append(char_read)
 		if state_dest not in states:
 			states.append(state_dest)
-		if char_write != "*" and char_write not in input_alpha:
+		if char_write != "*" and char_write not in input_alpha and char_read not in [tape_end_char, blank_char]:
 			input_alpha.append(char_write)
 		
 		#if a rule has a wildcard, it must be handled last

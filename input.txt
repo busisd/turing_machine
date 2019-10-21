@@ -12,7 +12,7 @@ look_for_1 _ -> state_reject _ R
 look_for_2 1 -> look_for_2 1 R
 look_for_2 X -> look_for_2 X R
 look_for_2 2 -> state_start X R
-look_for_2 _ -> state_accept _ R
+look_for_2 _ -> state_reject _ R
 state_start X -> state_start X L
 state_start 0 -> state_start 0 L
 state_start 1 -> state_start 1 L
