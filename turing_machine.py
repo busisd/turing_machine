@@ -340,25 +340,30 @@ def create_tm_from(input_string, start_state="state_start"):
 			errors.append(new_error)
 			continue
 		
-		if state_source != "*" and state_source not in states:
+		if state_source not in states:
 			states.append(state_source)
 		if char_read != "*" and char_read not in input_alpha:
 			input_alpha.append(char_read)
-		if state_dest != "*" and state_dest not in states:
+		if state_dest not in states:
 			states.append(state_dest)
 		if char_write != "*" and char_write not in input_alpha:
 			input_alpha.append(char_write)
 		
 		#if a rule has a wildcard, it must be handled last
-		if "*" in [state_source, char_read, state_dest, char_write]:
+		if "*" in [char_read, char_write]:
 			wildcard_rules.append(symbols)
+			continue
 		
 		rules[(state_source, char_read)] = (state_dest, char_write, dir)
 				
 	if errors: 
 		return errors
 	
+	tape_alpha = input_alpha.copy()
+	tape_alpha.append("_")
+	
 	#wildcard rules don't overwrite normal rules
+	#also don't include start symbol
 	for line in wildcard_rules:
 		state_source = symbols[0]
 		char_read = symbols[1]
@@ -366,30 +371,23 @@ def create_tm_from(input_string, start_state="state_start"):
 		char_write = symbols[4]
 		dir = symbols[5]
 		
-		state_source_list = [state_source]
-		if state_source == "*":
-			state_source_list = states
-		char_read_list = [char_read]
-		if char_read == "*":
-			char_read_list = states
-		state_dest_list = [state_dest]
-		if state_dest == "*":
-			state_dest_list = states
-		char_write_list = [char_write]
-		if char_write == "*":
-			char_write_list = states
-		
-		for source in state_source_list:
-			for read in char_read_list:
-				for dest in state_dest_list:
-					for write in char_write_list:
-						cur_tuple = (state_source_list, char_read_list)
-						if rules.get(cur_tuple, None) is None:
-							rules[(source, read)] = (dest, write, dir)
+		for char in tape_alpha:
+			cur_char_read = char_read
+			if char_read == "*":
+				cur_char_read = char
+			
+			cur_char_write = char_write
+			if char_write == "*":
+				cur_char_write = char
+			
+			if rules.get((state_source, cur_char_read), None) is None:
+				rules[(state_source, cur_char_read)] = (state_dest, cur_char_write, dir)
+			
+	tape_alpha.append("#")
 	
 	TM = TuringMachine(states,
 				input_alpha,
-				input_alpha.copy(),
+				tape_alpha,
 				rules,
 				start_state,
 	)
@@ -406,14 +404,13 @@ def get_steps(TM, num_steps):
 		steps.append(TM.get_current_state())
 		errors = TM.step_sim()
 		if (errors):
-			raise(Exception(" ".join(errors)))
+			return {"error": True, "data": errors}
 		i += 1
 	
 	if(i<num_steps):
 		steps.append(TM.get_current_state())
 		
-	
-	return steps
+	return {"error": False, "data": steps}
 
 
 
@@ -463,7 +460,7 @@ def main():
 	
 	print(TM.start_sim("000111222"))
 	all_states = get_steps(TM, 100)
-	for state in all_states:
+	for state in all_states["data"]:
 		print(state)
 	print(TM.has_ended())
 
