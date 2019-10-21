@@ -150,14 +150,14 @@ class TuringMachine:
 		for char in self.input_alpha:
 			if char not in self.tape_alpha:
 				new_error = "Error: character "+char+" in input but not tape alphabet"
-				errors.append()
+				errors.append(new_error)
 
 		if self.tape_end_char not in self.tape_alpha:
 			new_error = "Error: tape end character "+self.tape_end_char+" in input but not tape alphabet"
-			errors.append()
+			errors.append(new_error)
 		if self.blank_char not in self.tape_alpha:
 			new_error = "Error: character "+self.blank_char+" in input but not tape alphabet"
-			errors.append()	
+			errors.append(new_error)	
 		
 		for rule_key in self.rules.keys():
 			if len(rule_key) != 2:
@@ -303,13 +303,126 @@ class TuringMachine:
 		}
 		
 		return cur_state_dict
+
+
+
+def create_tm_from(input_string, start_state="state_start"):
+	states = []
+	input_alpha = []
+	tape_alpha = []
+	rules = {}
+	
+	input_lines = input_string.splitlines()
+	errors = []
+	wildcard_rules = []
+	for line_num in range(len(input_lines)):
+		line = input_lines[line_num]
+		line = line.split(";")[0].strip() #removes comments and whitespace
+		symbols = line.split()
 		
+		if(not symbols): #blank line:
+			continue
 		
-			
+		if(len(symbols) != 6 or symbols[2] != "->"):
+			new_error = "Error at line "+str(line_num)+": must be of the form "
+			new_error += "state read -> state write L/R"
+			errors.append(new_error)
+			continue
+		
+		state_source = symbols[0]
+		char_read = symbols[1]
+		state_dest = symbols[3]
+		char_write = symbols[4]
+		dir = symbols[5]
+		
+		if dir not in ["L", "R"]:
+			new_error = "Error at line "+str(line_num)+": direction must be L or R"
+			errors.append(new_error)
+			continue
+		
+		if state_source != "*" and state_source not in states:
+			states.append(state_source)
+		if char_read != "*" and char_read not in input_alpha:
+			input_alpha.append(char_read)
+		if state_dest != "*" and state_dest not in states:
+			states.append(state_dest)
+		if char_write != "*" and char_write not in input_alpha:
+			input_alpha.append(char_write)
+		
+		#if a rule has a wildcard, it must be handled last
+		if "*" in [state_source, char_read, state_dest, char_write]:
+			wildcard_rules.append(symbols)
+		
+		rules[(state_source, char_read)] = (state_dest, char_write, dir)
+				
+	if errors: 
+		return errors
+	
+	#wildcard rules don't overwrite normal rules
+	for line in wildcard_rules:
+		state_source = symbols[0]
+		char_read = symbols[1]
+		state_dest = symbols[3]
+		char_write = symbols[4]
+		dir = symbols[5]
+		
+		state_source_list = [state_source]
+		if state_source == "*":
+			state_source_list = states
+		char_read_list = [char_read]
+		if char_read == "*":
+			char_read_list = states
+		state_dest_list = [state_dest]
+		if state_dest == "*":
+			state_dest_list = states
+		char_write_list = [char_write]
+		if char_write == "*":
+			char_write_list = states
+		
+		for source in state_source_list:
+			for read in char_read_list:
+				for dest in state_dest_list:
+					for write in char_write_list:
+						cur_tuple = (state_source_list, char_read_list)
+						if rules.get(cur_tuple, None) is None:
+							rules[(source, read)] = (dest, write, dir)
+	
+	TM = TuringMachine(states,
+				input_alpha,
+				input_alpha.copy(),
+				rules,
+				start_state,
+	)
+	
+	return TM
+
+
+
+def get_steps(TM, num_steps):
+	steps = []
+	
+	i = 0
+	while((not TM.has_ended()) and i<num_steps):
+		steps.append(TM.get_current_state())
+		errors = TM.step_sim()
+		if (errors):
+			raise(Exception(" ".join(errors)))
+		i += 1
+	
+	if(i<num_steps):
+		steps.append(TM.get_current_state())
+		
+	
+	return steps
+
+
+
 def main():
 	'''
 		Runs a test on a TM that accepts strings in the form:
 		{0^n1^n2^n}
+	'''
+	
 	'''
 	TM = TuringMachine(["look_for_0", "look_for_1", "look_for_2", "reset"], 
 					["0", "1", "2"], 
@@ -341,21 +454,26 @@ def main():
 					tape_end_char = '#', 
 					blank_char = '_', 
 					default_rule = None)
-					
-	all_states = []
+	'''
+	
+	TM = None
+	with open("input.txt", "r") as input_file:
+		input = input_file.read()
+		TM = create_tm_from(input)
+	
 	print(TM.start_sim("000111222"))
-	while not TM.has_ended():
-		all_states.append(TM.get_current_state())
-		print(TM.tape, TM.cur_state, TM.cur_head_pos)
-		TM.step_sim()
-	all_states.append(TM.get_current_state())
+	all_states = get_steps(TM, 100)
+	for state in all_states:
+		print(state)
 	print(TM.has_ended())
 
 	with open("tm_out.json", 'w') as file:
 		file.write("tm_data = '")
 		file.write(json.dumps(all_states))
 		file.write("'")
-
+	
+	
+	
 	# TM.step_sim()
 	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
 	# print(TM.has_ended())
@@ -366,17 +484,17 @@ def main():
 	# print(TM.tape, TM.cur_state, TM.cur_head_pos)
 	# print(TM.has_ended())
 	
-	print(TM.start_sim("120"))
-	while not TM.has_ended():
-		print(TM.tape, TM.cur_state, TM.cur_head_pos)
-		TM.step_sim()
-	print(TM.has_ended())
+	# print(TM.start_sim("120"))
+	# while not TM.has_ended():
+		# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+		# TM.step_sim()
+	# print(TM.has_ended())
 	
-	print(TM.start_sim("0011222"))
-	while not TM.has_ended():
-		print(TM.tape, TM.cur_state, TM.cur_head_pos)
-		TM.step_sim()
-	print(TM.has_ended())
+	# print(TM.start_sim("0011222"))
+	# while not TM.has_ended():
+		# print(TM.tape, TM.cur_state, TM.cur_head_pos)
+		# TM.step_sim()
+	# print(TM.has_ended())
 	
 if __name__ == "__main__":
 	main()
