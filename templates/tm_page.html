@@ -1,0 +1,33 @@
+<!Doctype html>
+<html>
+
+<head>
+	<title>Turing Machine Simulation</title>
+	<link type="text/css" rel="stylesheet" href="{{url_for('static', filename='tm_css.css')}}" />
+	<link rel="shortcut icon" href="#" />
+	
+	<script type="text/javascript" src="{{url_for('static', filename='tm_out.json')}}"></script>
+	<script type="text/javascript" src="{{url_for('static', filename='tm_script.js')}}" defer></script>
+</head>
+
+<body>
+	<p id="current_state">
+	</p>
+	<div id="tape_div">
+		<table id="tape_table">
+			<tr id="tape_row_top">
+			</tr>
+			<tr id="tape_row_bottom">
+			</tr>
+		</table>
+	</div>
+	
+	<br>
+	<button onclick="advance_state()"> Next state </button>
+	<button id="toggle_auto_button" onclick="toggle_auto()"> Auto on </button>
+	<button onclick="reset_state()"> Reset </button>
+	<br><br>
+	<label for="delay_field"> Delay (ms): </label> <input id="delay_field" value="100"> </input>
+</body>
+
+</html>
