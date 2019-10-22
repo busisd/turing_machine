@@ -6,13 +6,12 @@
 	<link type="text/css" rel="stylesheet" href="{{url_for('static', filename='tm_css.css')}}" />
 	<link rel="shortcut icon" href="#" />
 	
-	<script type="text/javascript" src="{{url_for('static', filename='tm_out.json')}}"></script>
+	<!-- <script type="text/javascript" src="{{url_for('static', filename='tm_out.json')}}"></script> -->
 	<script type="text/javascript" src="{{url_for('static', filename='tm_script.js')}}" defer></script>
 </head>
 
 <body>
-	<p id="current_state">
-	</p>
+	<p id="current_state"> Press "Submit Turing Machine" to load in a TM simulation! </p>
 	<div id="tape_div">
 		<table id="tape_table">
 			<tr id="tape_row_top">
@@ -23,15 +22,21 @@
 	</div>
 	
 	<br>
+	<button onclick="regress_state()"> Prev state </button>
 	<button onclick="advance_state()"> Next state </button>
+	<br>
 	<button id="toggle_auto_button" onclick="toggle_auto()"> Auto on </button>
 	<button onclick="reset_state()"> Reset </button>
 	<br><br>
-	<label for="delay_field"> Delay (ms): </label> <input id="delay_field" value="100"> </input>
+	<label for="delay_field"> Delay (ms): </label>
+	<input id="delay_field" value="60"> </input>
 	<br><br><br>
 	<textarea id="tm_data_text_area"></textarea>
 	<br>
+	<label for="input_string_field"> Input string: </label>
 	<input id="input_string_field" value="000111222"></input>
+	<label for="max_steps"> Max steps: </label>
+	<input id="max_steps" value="100"></input>
 	<br>
 	<button id="submit_tm_button" onclick="submit_tm()"> Submit Turing Machine </button>
 	<br>

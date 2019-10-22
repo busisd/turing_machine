@@ -1,8 +1,8 @@
-var my_tm = JSON.parse(tm_data);
-console.log(my_tm);
+// var my_tm = JSON.parse(tm_data);
+// console.log(my_tm);
+var my_tm;
 
 var state_num = 0;
-var max_states = my_tm.length;
 
 var current_state = document.getElementById("current_state");
 var tape_row_top = document.getElementById("tape_row_top");
@@ -14,26 +14,23 @@ var error_field = document.getElementById("error_field");
 var input_string_field = document.getElementById("input_string_field");
 
 tm_data_text_area.value = "\
-state_start # -> look_for_0 # R\n\
-look_for_0 X -> look_for_0 X R\n\
-look_for_0 0 -> look_for_1 X R\n\
-look_for_0 1 -> state_reject 1 R\n\
-look_for_0 2 -> state_reject 2 R\n\
-look_for_0 _ -> state_accept _ R\n\
-look_for_1 0 -> look_for_1 0 R\n\
-look_for_1 X -> look_for_1 X R\n\
-look_for_1 1 -> look_for_2 X R\n\
-look_for_1 2 -> state_reject 2 R\n\
-look_for_1 _ -> state_reject _ R\n\
-look_for_2 1 -> look_for_2 1 R\n\
-look_for_2 X -> look_for_2 X R\n\
-look_for_2 2 -> state_start X R\n\
-look_for_2 _ -> state_reject _ R\n\
-state_start X -> state_start X L\n\
-state_start 0 -> state_start 0 L\n\
-state_start 1 -> state_start 1 L\n\
-state_start 2 -> state_start 2 L\n\
-state_start _ -> state_start _ L\n\
+state_start # -> look_for_0 # R \n\
+look_for_0 X -> look_for_0 X R \n\
+look_for_0 0 -> look_for_1 X R \n\
+look_for_0 1 -> state_reject 1 R \n\
+look_for_0 2 -> state_reject 2 R \n\
+look_for_0 _ -> state_accept _ R \n\
+look_for_1 0 -> look_for_1 0 R \n\
+look_for_1 X -> look_for_1 X R \n\
+look_for_1 1 -> look_for_2 X R \n\
+look_for_1 2 -> state_reject 2 R \n\
+look_for_1 _ -> state_reject _ R \n\
+look_for_2 1 -> look_for_2 1 R \n\
+look_for_2 X -> look_for_2 X R \n\
+look_for_2 2 -> state_start X R \n\
+look_for_2 _ -> state_reject _ R \n\
+ \n\
+state_start * -> state_start * L \n\
 ";
 
 var is_auto_on = false;
@@ -59,7 +56,7 @@ function display_state(tm_state){
 }
 
 function advance_state(){
-	if (state_num < max_states-1) {
+	if (state_num < my_tm.length-1) {
 		state_num++;
 		display_state(my_tm[state_num]);
 	} else if (is_auto_on) {
@@ -73,6 +70,13 @@ function reset_state(){
 	
 	if (is_auto_on) {
 		toggle_auto();
+	}
+}
+
+function regress_state(){
+	if (state_num > 0) {
+		state_num--;
+		display_state(my_tm[state_num]);
 	}
 }
 
@@ -115,7 +119,6 @@ function submit_tm(){
 			console.log(JSON.parse(this.responseText));
 			if (!response_json["error"]){
 				my_tm = response_json["data"];
-				max_states = my_tm.length;
 				error_field.innerText = "TM Registered!";
 				reset_state();
 			} else {
@@ -129,4 +132,4 @@ function submit_tm(){
 	xhttp.send(JSON.stringify(data_dict));
 }
 
-display_state(my_tm[state_num]);
+submit_tm();
