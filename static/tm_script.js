@@ -107,6 +107,8 @@ function submit_tm(){
 					"input_string": input_string
 					};
 	
+	error_field.innerText = "Simulating TM...";
+	
 	xhttp.onreadystatechange = function() {
 		if(this.readyState == 4 && this.status == 200) {
 			response_json = JSON.parse(this.responseText);

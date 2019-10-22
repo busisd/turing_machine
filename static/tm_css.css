@@ -25,3 +25,8 @@ table, th, td {
 #delay_field {
 	width: 4em;
 }
+
+#tm_data_text_area {
+	width: 50%;
+	height: 400px;
+}

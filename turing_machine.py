@@ -188,8 +188,11 @@ class TuringMachine:
 			if rule_key[1] == self.tape_end_char:
 				if self.rules[rule_key][1] != self.tape_end_char:
 					new_error = "Error: rule "+self._rule_to_str(rule_key)+" doesn't re-write tape end!"
+					errors.append(new_error)
 				if self.rules[rule_key][2] != "R":
 					new_error = "Error: rule "+self._rule_to_str(rule_key)+" doesn't move right on tape end!"
+					errors.append(new_error)
+
 				
 		if len(self.default_rule) != 3:
 			new_error = "Error: default rule has length != 3"
@@ -306,9 +309,13 @@ class TuringMachine:
 
 
 
-def create_tm_from(input_string, start_state="state_start", tape_end_char="#", blank_char="_"):
+def create_tm_from(input_string, start_state="state_start", tape_end_char="#", blank_char="_", additional_chars=[]):
 	states = []
-	input_alpha = []
+	input_alpha = additional_chars
+	if tape_end_char in additional_chars:
+		return ["Error: tape end char '"+tape_end_char+"' in input"] 
+	if blank_char in additional_chars:
+		return ["Error: blank char '"+blank_char+"' in input"] 
 	tape_alpha = []
 	rules = {}
 	
@@ -346,7 +353,7 @@ def create_tm_from(input_string, start_state="state_start", tape_end_char="#", b
 			input_alpha.append(char_read)
 		if state_dest not in states:
 			states.append(state_dest)
-		if char_write != "*" and char_write not in input_alpha and char_read not in [tape_end_char, blank_char]:
+		if char_write != "*" and char_write not in input_alpha and char_write not in [tape_end_char, blank_char]:
 			input_alpha.append(char_write)
 		
 		#if a rule has a wildcard, it must be handled last
@@ -365,11 +372,11 @@ def create_tm_from(input_string, start_state="state_start", tape_end_char="#", b
 	#wildcard rules don't overwrite normal rules
 	#also don't include start symbol
 	for line in wildcard_rules:
-		state_source = symbols[0]
-		char_read = symbols[1]
-		state_dest = symbols[3]
-		char_write = symbols[4]
-		dir = symbols[5]
+		state_source = line[0]
+		char_read = line[1]
+		state_dest = line[3]
+		char_write = line[4]
+		dir = line[5]
 		
 		for char in tape_alpha:
 			cur_char_read = char_read

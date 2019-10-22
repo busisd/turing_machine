@@ -12,7 +12,8 @@ def tm_page():
 @app.route('/generate_tm', methods=["POST"])
 def set_machine():
 	print("data received:", request.json)
-	TM = create_tm_from(request.json["tm_data"], start_state=request.json["start_state"])
+	extra_chars = list(set(request.json["input_string"]))
+	TM = create_tm_from(request.json["tm_data"], start_state=request.json["start_state"], additional_chars=extra_chars)
 	if type(TM) == list:
 		print(TM)
 		return json.dumps({"error": True, "data": TM})
@@ -20,8 +21,9 @@ def set_machine():
 		errors = TM.start_sim(request.json["input_string"])
 		if errors:
 			return(json.dumps({"error": True, "data": errors}))
-		steps = get_steps(TM, 100)
-		return json.dumps(steps)
+		else:
+			steps = get_steps(TM, 100)
+			return json.dumps(steps)
 
 def main():
 	app.run(host="0.0.0.0", port=2013)
